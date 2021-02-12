@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="card_database" uuid="9cf0c3b9-e918-4e0c-bb2c-44f71041d64d">
-      <driver-ref>sqlite.xerial</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:card_database</jdbc-url>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
     <data-source source="LOCAL" name="chinook" uuid="8f55f123-e70b-49cc-b678-c013cdd47a78">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>

@@ -8,97 +8,68 @@ public class Card {
 
     // Core Card Fields
     private final UUID id;
-    private final String lang;
-    private final Integer tcgplayer_id;
-    private final UUID oracle_id;
-
-    // Gameplay Fields
+    private final Language lang;
     private final Double cmc;
-    private final Color[] color_identity;
-    private final Color[] color_indicator;
-    private final Color[] colors;
-    private final boolean foil;
-    private final String[] keywords;
+    private final boolean w_c; // White Color
+    private final boolean u_c; // Blue Color
+    private final boolean b_c; // Black Color
+    private final boolean r_c; // Red Color
+    private final boolean g_c; // Green Color
+    private final boolean w_ci; // White Color Identity
+    private final boolean u_ci; // Blue Color Identity
+    private final boolean b_ci; // Black Color Identity
+    private final boolean r_ci; // Red Color Identity
+    private final boolean g_ci; // Green Color Identity
     private final Layout layout;
-    private final Legality[] legalities;
-    private final String loyalty;
+    private final Legality standard;
+    private final Legality brawl;
+    private final Legality pioneer;
+    private final Legality historic;
+    private final Legality modern;
+    private final Legality pauper;
+    private final Legality legacy;
+    private final Legality penny;
+    private final Legality vintage;
+    private final Legality commander;
     private final String mana_cost;
     private final String name;
-    private final boolean nonfoil;
-    private final String oracle_text;
     private final String power;
     private final String toughness;
-    private final Color[] produced_mana;
     private final String type_line;
-
-    // Print Fields
-    private final String artist;
-    private final BorderColor border_color;
-    private final UUID card_back_id;
-    private final String collector_number;
-    private final boolean content_warning;
-    private final boolean digital;
-    private final String flavor_name;
-    private final String flavor_text;
-    private final Games[] games;
-    private final String printed_name;
-    private final String printed_text;
-    private final String printed_type_line;
-    private final boolean promo;
-    private final String[] promo_types;
-    private final Rarity rarity;
-    private final String release_date;
-    private final boolean reprint;
-    private final String set_name;
-    private final String set_type;
-    private final String set;
 
     // TODO: Add Card Face Objects and Related Card Objects
 
     // Constructors
-
-    public Card(UUID id, String lang, Integer tcgplayer_id, UUID oracle_id, Double cmc, Color[] color_identity, Color[] color_indicator, Color[] colors, boolean foil, String[] keywords, Layout layout, Legality[] legalities, String loyalty, String mana_cost, String name, boolean nonfoil, String oracle_text, String power, String toughness, Color[] produced_mana, String type_line, String artist, BorderColor border_color, UUID card_back_id, String collector_number, boolean content_warning, boolean digital, String flavor_name, String flavor_text, Games[] games, String printed_name, String printed_text, String printed_type_line, boolean promo, String[] promo_types, Rarity rarity, String release_date, boolean reprint, String set_name, String set_type, String set) {
+    public Card(UUID id, Language lang, Double cmc, boolean w_c, boolean u_c, boolean b_c, boolean r_c, boolean g_c, boolean w_ci, boolean u_ci, boolean b_ci, boolean r_ci, boolean g_ci, Layout layout, Legality standard_legality, Legality brawl_legality, Legality pioneer_legality, Legality historic_legality, Legality modern_legality, Legality pauper_legality, Legality legacy_legality, Legality penny_legality, Legality vintage_legality, Legality commander_legality, String mana_cost, String name, String power, String toughness, String type_line) {
         this.id = id;
         this.lang = lang;
-        this.tcgplayer_id = tcgplayer_id;
-        this.oracle_id = oracle_id;
         this.cmc = cmc;
-        this.color_identity = color_identity;
-        this.color_indicator = color_indicator;
-        this.colors = colors;
-        this.foil = foil;
-        this.keywords = keywords;
+        this.w_c = w_c;
+        this.u_c = u_c;
+        this.b_c = b_c;
+        this.r_c = r_c;
+        this.g_c = g_c;
+        this.w_ci = w_ci;
+        this.u_ci = u_ci;
+        this.b_ci = b_ci;
+        this.r_ci = r_ci;
+        this.g_ci = g_ci;
         this.layout = layout;
-        this.legalities = legalities;
-        this.loyalty = loyalty;
+        this.standard = standard_legality;
+        this.brawl = brawl_legality;
+        this.pioneer = pioneer_legality;
+        this.historic = historic_legality;
+        this.modern = modern_legality;
+        this.pauper = pauper_legality;
+        this.legacy = legacy_legality;
+        this.penny = penny_legality;
+        this.vintage = vintage_legality;
+        this.commander = commander_legality;
         this.mana_cost = mana_cost;
         this.name = name;
-        this.nonfoil = nonfoil;
-        this.oracle_text = oracle_text;
         this.power = power;
         this.toughness = toughness;
-        this.produced_mana = produced_mana;
         this.type_line = type_line;
-        this.artist = artist;
-        this.border_color = border_color;
-        this.card_back_id = card_back_id;
-        this.collector_number = collector_number;
-        this.content_warning = content_warning;
-        this.digital = digital;
-        this.flavor_name = flavor_name;
-        this.flavor_text = flavor_text;
-        this.games = games;
-        this.printed_name = printed_name;
-        this.printed_text = printed_text;
-        this.printed_type_line = printed_type_line;
-        this.promo = promo;
-        this.promo_types = promo_types;
-        this.rarity = rarity;
-        this.release_date = release_date;
-        this.reprint = reprint;
-        this.set_name = set_name;
-        this.set_type = set_type;
-        this.set = set;
     }
 
     @Override
@@ -128,52 +99,96 @@ public class Card {
         return id;
     }
 
-    public String getLang() {
+    public Language getLang() {
         return lang;
-    }
-
-    public Integer getTcgplayer_id() {
-        return tcgplayer_id;
-    }
-
-    public UUID getOracle_id() {
-        return oracle_id;
     }
 
     public Double getCmc() {
         return cmc;
     }
 
-    public Color[] getColor_identity() {
-        return color_identity;
+    public boolean isW_c() {
+        return w_c;
     }
 
-    public Color[] getColor_indicator() {
-        return color_indicator;
+    public boolean isU_c() {
+        return u_c;
     }
 
-    public Color[] getColors() {
-        return colors;
+    public boolean isB_c() {
+        return b_c;
     }
 
-    public boolean isFoil() {
-        return foil;
+    public boolean isR_c() {
+        return r_c;
     }
 
-    public String[] getKeywords() {
-        return keywords;
+    public boolean isG_c() {
+        return g_c;
+    }
+
+    public boolean isW_ci() {
+        return w_ci;
+    }
+
+    public boolean isU_ci() {
+        return u_ci;
+    }
+
+    public boolean isB_ci() {
+        return b_ci;
+    }
+
+    public boolean isR_ci() {
+        return r_ci;
+    }
+
+    public boolean isG_ci() {
+        return g_ci;
     }
 
     public Layout getLayout() {
         return layout;
     }
 
-    public Legality[] getLegalities() {
-        return legalities;
+    public Legality getStandard() {
+        return standard;
     }
 
-    public String getLoyalty() {
-        return loyalty;
+    public Legality getBrawl() {
+        return brawl;
+    }
+
+    public Legality getPioneer() {
+        return pioneer;
+    }
+
+    public Legality getHistoric() {
+        return historic;
+    }
+
+    public Legality getModern() {
+        return modern;
+    }
+
+    public Legality getPauper() {
+        return pauper;
+    }
+
+    public Legality getLegacy() {
+        return legacy;
+    }
+
+    public Legality getPenny() {
+        return penny;
+    }
+
+    public Legality getVintage() {
+        return vintage;
+    }
+
+    public Legality getCommander() {
+        return commander;
     }
 
     public String getMana_cost() {
@@ -184,14 +199,6 @@ public class Card {
         return name;
     }
 
-    public boolean isNonfoil() {
-        return nonfoil;
-    }
-
-    public String getOracle_text() {
-        return oracle_text;
-    }
-
     public String getPower() {
         return power;
     }
@@ -200,91 +207,8 @@ public class Card {
         return toughness;
     }
 
-    public Color[] getProduced_mana() {
-        return produced_mana;
-    }
-
     public String getType_line() {
         return type_line;
     }
 
-    public String getArtist() {
-        return artist;
-    }
-
-    public BorderColor getBorder_color() {
-        return border_color;
-    }
-
-    public UUID getCard_back_id() {
-        return card_back_id;
-    }
-
-    public String getCollector_number() {
-        return collector_number;
-    }
-
-    public boolean isContent_warning() {
-        return content_warning;
-    }
-
-    public boolean isDigital() {
-        return digital;
-    }
-
-    public String getFlavor_name() {
-        return flavor_name;
-    }
-
-    public String getFlavor_text() {
-        return flavor_text;
-    }
-
-    public Games[] getGames() {
-        return games;
-    }
-
-    public String getPrinted_name() {
-        return printed_name;
-    }
-
-    public String getPrinted_text() {
-        return printed_text;
-    }
-
-    public String getPrinted_type_line() {
-        return printed_type_line;
-    }
-
-    public boolean isPromo() {
-        return promo;
-    }
-
-    public String[] getPromo_types() {
-        return promo_types;
-    }
-
-    public Rarity getRarity() {
-        return rarity;
-    }
-
-    public String getRelease_date() {
-        return release_date;
-    }
-
-    public boolean isReprint() {
-        return reprint;
-    }
-
-    public String getSet_name() {
-        return set_name;
-    }
-
-    public String getSet_type() {
-        return set_type;
-    }
-
-    public String getSet() {
-        return set;
-    }
 }
