@@ -24,4 +24,14 @@ public enum Rarity {
             case MYTHIC -> 3;
         };
     }
+
+    public static Rarity fromString(String val) {
+        return switch(val) {
+            case "common" -> COMMON;
+            case "uncommon" -> UNCOMMON;
+            case "rare" -> RARE;
+            case "mythic" -> MYTHIC;
+            default -> null;
+        };
+    }
 }

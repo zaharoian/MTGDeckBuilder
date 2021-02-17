@@ -8,41 +8,42 @@ public class Card {
 
     // Core Card Fields
     private final UUID id;
-    private final Language lang;
-    private final Double cmc;
-    private final boolean w_c; // White Color
-    private final boolean u_c; // Blue Color
-    private final boolean b_c; // Black Color
-    private final boolean r_c; // Red Color
-    private final boolean g_c; // Green Color
-    private final boolean w_ci; // White Color Identity
-    private final boolean u_ci; // Blue Color Identity
-    private final boolean b_ci; // Black Color Identity
-    private final boolean r_ci; // Red Color Identity
-    private final boolean g_ci; // Green Color Identity
-    private final Layout layout;
-    private final Legality standard;
-    private final Legality brawl;
-    private final Legality pioneer;
-    private final Legality historic;
-    private final Legality modern;
-    private final Legality pauper;
-    private final Legality legacy;
-    private final Legality penny;
-    private final Legality vintage;
-    private final Legality commander;
-    private final String mana_cost;
     private final String name;
-    private final String power;
-    private final String toughness;
     private final String type_line;
+
+    private Integer cmc = null;
+    private String mana_cost = null;
+    private boolean w_c = false; // White Color
+    private boolean u_c = false; // Blue Color
+    private boolean b_c = false; // Black Color
+    private boolean r_c = false; // Red Color
+    private boolean g_c = false; // Green Color
+    private boolean w_ci = false; // White Color Identity
+    private boolean u_ci = false; // Blue Color Identity
+    private boolean b_ci = false; // Black Color Identity
+    private boolean r_ci = false; // Red Color Identity
+    private boolean g_ci = false; // Green Color Identity
+    private Layout layout = null;
+    private Legality standard = null;
+    private Legality brawl = null;
+    private Legality pioneer = null;
+    private Legality historic = null;
+    private Legality modern = null;
+    private Legality pauper = null;
+    private Legality legacy = null;
+    private Legality penny = null;
+    private Legality vintage = null;
+    private Legality commander = null;
+    private String power = null;
+    private String toughness = null;
 
     // TODO: Add Card Face Objects and Related Card Objects
 
     // Constructors
-    public Card(UUID id, Language lang, Double cmc, boolean w_c, boolean u_c, boolean b_c, boolean r_c, boolean g_c, boolean w_ci, boolean u_ci, boolean b_ci, boolean r_ci, boolean g_ci, Layout layout, Legality standard_legality, Legality brawl_legality, Legality pioneer_legality, Legality historic_legality, Legality modern_legality, Legality pauper_legality, Legality legacy_legality, Legality penny_legality, Legality vintage_legality, Legality commander_legality, String mana_cost, String name, String power, String toughness, String type_line) {
+
+    // Full Card
+    public Card(UUID id, Integer cmc, boolean w_c, boolean u_c, boolean b_c, boolean r_c, boolean g_c, boolean w_ci, boolean u_ci, boolean b_ci, boolean r_ci, boolean g_ci, Layout layout, Legality standard_legality, Legality brawl_legality, Legality pioneer_legality, Legality historic_legality, Legality modern_legality, Legality pauper_legality, Legality legacy_legality, Legality penny_legality, Legality vintage_legality, Legality commander_legality, String mana_cost, String name, String power, String toughness, String type_line) {
         this.id = id;
-        this.lang = lang;
         this.cmc = cmc;
         this.w_c = w_c;
         this.u_c = u_c;
@@ -87,10 +88,11 @@ public class Card {
 
     @Override
     public String toString() {
-        return "Card{" +
+        return "\nCard{\n" +
                 "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+                "\nname='" + name + '\'' +
+                "\ntype_line='" + type_line + '\'' +
+                "\n}";
     }
 
     // Accessors
@@ -99,11 +101,7 @@ public class Card {
         return id;
     }
 
-    public Language getLang() {
-        return lang;
-    }
-
-    public Double getCmc() {
+    public Integer getCmc() {
         return cmc;
     }
 

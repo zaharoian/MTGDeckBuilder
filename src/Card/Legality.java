@@ -17,12 +17,22 @@ public enum Legality {
         };
     }
 
-    public static  int toInt(Legality val) {
+    public static int toInt(Legality val) {
         return switch (val) {
             case LEGAL -> 0;
             case NOT_LEGAL -> 1;
             case RESTRICTED -> 2;
             case BANNED -> 3;
+        };
+    }
+
+    public static Legality fromString(String val) {
+        return switch (val) {
+            case "legal" -> LEGAL;
+            case "not_legal" -> NOT_LEGAL;
+            case "restricted" -> RESTRICTED;
+            case "banned" -> BANNED;
+            default -> null;
         };
     }
 }

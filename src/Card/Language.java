@@ -64,4 +64,27 @@ public enum Language {
             case PH -> 16;
         };
     }
+
+    public static Language fromString(String val) {
+        return switch(val.toUpperCase()) {
+            case "EN" -> EN;
+            case "ES" -> ES;
+            case "FR" -> FR;
+            case "DE" -> DE;
+            case "IT" -> IT;
+            case "PT" -> PT;
+            case "JA" -> JA;
+            case "KR" -> KR;
+            case "RU" -> RU;
+            case "ZHS" -> ZHS;
+            case "ZHT" -> ZHT;
+            case "HE" -> HE;
+            case "LA" -> LA;
+            case "GRC" -> GRC;
+            case "AR" -> AR;
+            case "SA" -> SA;
+            case "PH" -> PH;
+            default -> null;
+        };
+    }
 }
