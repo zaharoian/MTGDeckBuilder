@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import Database.DBDriver;
+import Card.*;
 import Database.JSONDriver;
 
 import java.util.Arrays;
@@ -24,7 +25,11 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         DBDriver.connect();
-        JSONDriver.readUrl();
+        JSONDriver.readUrl("https://c2.scryfall.com/file/scryfall-bulk/oracle-cards/oracle-cards-20210218220417.json");
+        Card[] cards = DBDriver.search_cards("SELECT * FROM cards");
+        for (int i = 0; i < cards.length; i++) {
+            System.out.println(cards[i]);
+        }
         DBDriver.disconnect();
         launch(args);
     }

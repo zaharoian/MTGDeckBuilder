@@ -86,7 +86,8 @@ public class JSONDriver {
             final String toughness = (String) card.get("toughness");
 
             // Save to db
-            DBDriver.insertToCardsTable(id, name, layout, cmc, type_line, w_ci, u_ci, b_ci, r_ci, g_ci, standard, brawl, pioneer, historic, modern, pauper, legacy, penny, vintage, commander, rarity, image_uri);
+            DBDriver.insertToCardsTable(id, name, layout, cmc, type_line, w_ci, u_ci, b_ci, r_ci, g_ci, standard, brawl, pioneer, historic, modern, pauper, legacy, penny, vintage, commander, rarity, image_uri, mana_cost, power, toughness);
+            DBDriver.insertToFacesTable(id, true, image_uri, oracle_text, power, toughness);
         }
         // Multifaced Cards
         else if (layout == Layout.SPLIT || layout == Layout.FLIP ||
@@ -128,15 +129,14 @@ public class JSONDriver {
             }
 
             // Save to db
-            DBDriver.insertToCardsTable(id, name, layout, cmc, type_line, w_ci, u_ci, b_ci, r_ci, g_ci, standard, brawl, pioneer, historic, modern, pauper, legacy, penny, vintage, commander, rarity, front_image);
-
+            DBDriver.insertToCardsTable(id, name, layout, cmc, type_line, w_ci, u_ci, b_ci, r_ci, g_ci, standard, brawl, pioneer, historic, modern, pauper, legacy, penny, vintage, commander, rarity, front_image, mana_cost, front_power, front_toughness);
+            DBDriver.insertToFacesTable(id, true, front_image, front_oracle_text, front_power, front_toughness);
+            DBDriver.insertToFacesTable(id, false, back_image, back_oracle_text, back_power, back_toughness);
         }
         // New/Unhandled Cards
         else {
             System.out.println("Unhandled type: " + layout);
         }
-
-        System.out.println();
 
     }
 
@@ -177,42 +177,50 @@ public class JSONDriver {
     }
 
 
-    public static void readUrl() {
+    public static void readUrl(String urlString) {
         JSONParser jsonParser = new JSONParser();
 
-        try (FileReader reader = new FileReader("/Users/zachharoian/Downloads/b4d3b6a8-3e4a-4e2b-900a-9a21fa0ced4c.json")) {
-            Object obj = jsonParser.parse(reader);
+//        try (FileReader reader = new FileReader("/Users/zachharoian/Downloads/b4d3b6a8-3e4a-4e2b-900a-9a21fa0ced4c.json")) {
+//            Object obj = jsonParser.parse(reader);
+//
+//            JSONArray list = (JSONArray) obj;
+//            list.forEach(card -> parseCard( (JSONObject) card));
+//
+//        } catch (Exception e) {
+//            System.out.println(e);
+//        }
 
-            JSONArray list = (JSONArray) obj;
-            list.forEach(card -> parseCard( (JSONObject) card));
+        BufferedReader reader = null;
+        try {
+            URL url = new URL(urlString);
+            reader = new BufferedReader(new InputStreamReader(url.openStream()));
+            StringBuffer buffer = new StringBuffer();
+            int read;
+            char[] chars = new char[1024];
+            while ((read = reader.read(chars)) != -1)
+                buffer.append(chars, 0, read);
+            String json = buffer.toString();
+            Object obj = jsonParser.parse(json);
+            if (obj instanceof JSONObject) {
+                // Single card
+                parseCard((JSONObject) obj);
+            } else {
+                // Array of cards
+                JSONArray list = (JSONArray) obj;
+                list.forEach(card -> parseCard((JSONObject) card));
+            }
+
 
         } catch (Exception e) {
             System.out.println(e);
+        } finally {
+            try {
+                if (reader != null)
+                    reader.close();
+            } catch (Exception e) {
+                System.out.println(e);
+            }
         }
-
-
-
-//        BufferedReader reader = null;
-//        try {
-//            URL url = new URL(urlString);
-//            reader = new BufferedReader(new InputStreamReader(url.openStream()));
-//            StringBuffer buffer = new StringBuffer();
-//            int read;
-//            char[] chars = new char[1024];
-//            while ((read = reader.read(chars)) != -1)
-//                buffer.append(chars, 0, read);
-//            return buffer.toString();
-//        } catch (Exception e) {
-//            System.out.println(e);
-//        } finally {
-//            try {
-//                if (reader != null)
-//                    reader.close();
-//            } catch (Exception e) {
-//                System.out.println(e);
-//            }
-//        }
-//        return null;
     }
 
 

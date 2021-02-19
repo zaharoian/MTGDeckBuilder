@@ -33,11 +33,20 @@ public class DBDriver {
 
             System.out.println("Checking for card table...");
             if (!tableExists("cards")) {
-                System.out.println("Table does not exist");
+                System.out.println("cards does not exist");
                 createCardsTable();
-                System.out.println("Created Cards Table");
+                System.out.println("Created cards Table");
             } else {
-                System.out.println("Cards exists");
+                System.out.println("cards exists");
+            }
+
+            System.out.println("Checking for faces table...");
+            if(!tableExists("faces")) {
+                System.out.println("faces does not exist");
+                createFacesTable();
+                System.out.println("Created faces Table");
+            } else {
+                System.out.println("faces exists");
             }
 
         } catch (SQLException e) {
@@ -72,6 +81,16 @@ public class DBDriver {
         return result;
     }
 
+    private static void createFacesTable() {
+        createTable("faces",
+                "id TEXT not null," +
+                        "front INTEGER not null," +
+                        "image_url TEXT not null," +
+                        "oracle_text TEXT," +
+                        "power TEXT," +
+                        "toughness TEXT");
+    }
+
     private static void createCardsTable() {
         createTable("cards",
                         "id TEXT PRIMARY KEY," +
@@ -95,15 +114,36 @@ public class DBDriver {
                         "vintage INTEGER not null," +
                         "commander INTEGER not null," +
                         "rarity INTEGER not null," +
-                        "image_url TEXT not null");
+                        "image_url TEXT not null," +
+                        "mana_cost TEXT," +
+                        "power TEXT," +
+                        "toughness TEXT");
+    }
+
+    public static void insertToFacesTable(UUID id, boolean front, String image_url, String oracle_text, String power, String toughness) {
+        PreparedStatement stmt = null;
+        try {
+            stmt = conn.prepareStatement("REPLACE INTO faces VALUES(?, ?, ?, ?, ?, ?)");
+
+            // Set values
+            stmt.setString(1, id.toString());
+            stmt.setBoolean(2, front);
+            stmt.setString(3, image_url);
+            stmt.setString(4, oracle_text);
+            stmt.setString(5, power);
+            stmt.setString(6, toughness);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
     }
 
     public static void insertToCardsTable(UUID id, String name, Layout layout, int cmc, String type_line, boolean w_ci, boolean u_ci, boolean b_ci, boolean r_ci, boolean g_ci,
                                           Legality standard, Legality brawl, Legality pioneer, Legality historic, Legality modern, Legality pauper, Legality legacy, Legality penny, Legality vintage, Legality commander,
-                                          Rarity rarity, String image_url) {
+                                          Rarity rarity, String image_url, String mana_cost, String power, String toughness) {
         PreparedStatement stmt = null;
         try {
-            stmt = conn.prepareStatement("REPLACE INTO cards VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            stmt = conn.prepareStatement("REPLACE INTO cards VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
             // Set values
             stmt.setString(1, id.toString());
@@ -128,6 +168,9 @@ public class DBDriver {
             stmt.setInt(20, Legality.toInt(commander));
             stmt.setInt(21, Rarity.toInt(rarity));
             stmt.setString(22, image_url);
+            stmt.setString(23, mana_cost);
+            stmt.setString(24, power);
+            stmt.setString(25, toughness);
             stmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e);
@@ -137,7 +180,6 @@ public class DBDriver {
     private static void createTable(String tableName, String columns) {
         Statement stmt = null;
         String query = "CREATE TABLE " + tableName + "(" + columns + ")";
-        System.out.println(query);
 
         try {
             stmt = conn.createStatement();
@@ -158,28 +200,23 @@ public class DBDriver {
 
     public static Card[] search_cards(String query) {
         Statement stmt = null;
+        Statement count = null;
         Card[] results = null;
 
         try {
             // Execute query
             stmt = conn.createStatement();
+            count = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
-            ResultSet count = stmt.executeQuery(query.replace("*", "COUNT(*)"));
+            ResultSet rs_count = count.executeQuery(query.replace("*", "COUNT(*)"));
 
-            results = new Card[count.getInt(1)];
+            results = new Card[rs_count.getInt(1)];
 
             // Parse results
             int i = 0;
             while(rs.next()) {
                 final UUID id = UUID.fromString(rs.getString("id"));
-                final String object = rs.getString("object");
-                final Language lang = Language.fromInt(rs.getInt("lang"));
-                final Double cmc = rs.getDouble("cmc");
-                final boolean w_c = rs.getBoolean("w_c");
-                final boolean u_c = rs.getBoolean("u_c");
-                final boolean b_c = rs.getBoolean("b_c");
-                final boolean r_c = rs.getBoolean("r_c");
-                final boolean g_c = rs.getBoolean("g_c");
+                final Integer cmc = rs.getInt("cmc");
                 final boolean w_ci = rs.getBoolean("w_ci");
                 final boolean u_ci = rs.getBoolean("u_ci");
                 final boolean b_ci = rs.getBoolean("b_ci");
@@ -202,7 +239,7 @@ public class DBDriver {
                 final String toughness = rs.getString("toughness");
                 final String type_line = rs.getString("type_line");
 
-                //results[i] = new Card(id, object, lang, cmc, w_c, u_c, b_c, r_c, g_c, w_ci, u_ci, b_ci, r_ci, g_ci, layout, standard, brawl, pioneer, historic, modern, pauper, legacy, penny, vintage, commander, mana_cost, name, power, toughness, type_line);
+                results[i] = new Card(id, cmc, w_ci, u_ci, b_ci, r_ci, g_ci, layout, standard, brawl, pioneer, historic, modern, pauper, legacy, penny, vintage, commander, mana_cost, name, power, toughness, type_line);
                 i += 1;
             }
 

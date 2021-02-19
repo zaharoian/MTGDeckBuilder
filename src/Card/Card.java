@@ -13,11 +13,6 @@ public class Card {
 
     private Integer cmc = null;
     private String mana_cost = null;
-    private boolean w_c = false; // White Color
-    private boolean u_c = false; // Blue Color
-    private boolean b_c = false; // Black Color
-    private boolean r_c = false; // Red Color
-    private boolean g_c = false; // Green Color
     private boolean w_ci = false; // White Color Identity
     private boolean u_ci = false; // Blue Color Identity
     private boolean b_ci = false; // Black Color Identity
@@ -37,19 +32,12 @@ public class Card {
     private String power = null;
     private String toughness = null;
 
-    // TODO: Add Card Face Objects and Related Card Objects
-
     // Constructors
 
     // Full Card
-    public Card(UUID id, Integer cmc, boolean w_c, boolean u_c, boolean b_c, boolean r_c, boolean g_c, boolean w_ci, boolean u_ci, boolean b_ci, boolean r_ci, boolean g_ci, Layout layout, Legality standard_legality, Legality brawl_legality, Legality pioneer_legality, Legality historic_legality, Legality modern_legality, Legality pauper_legality, Legality legacy_legality, Legality penny_legality, Legality vintage_legality, Legality commander_legality, String mana_cost, String name, String power, String toughness, String type_line) {
+    public Card(UUID id, Integer cmc, boolean w_ci, boolean u_ci, boolean b_ci, boolean r_ci, boolean g_ci, Layout layout, Legality standard_legality, Legality brawl_legality, Legality pioneer_legality, Legality historic_legality, Legality modern_legality, Legality pauper_legality, Legality legacy_legality, Legality penny_legality, Legality vintage_legality, Legality commander_legality, String mana_cost, String name, String power, String toughness, String type_line) {
         this.id = id;
         this.cmc = cmc;
-        this.w_c = w_c;
-        this.u_c = u_c;
-        this.b_c = b_c;
-        this.r_c = r_c;
-        this.g_c = g_c;
         this.w_ci = w_ci;
         this.u_ci = u_ci;
         this.b_ci = b_ci;
@@ -103,26 +91,6 @@ public class Card {
 
     public Integer getCmc() {
         return cmc;
-    }
-
-    public boolean isW_c() {
-        return w_c;
-    }
-
-    public boolean isU_c() {
-        return u_c;
-    }
-
-    public boolean isB_c() {
-        return b_c;
-    }
-
-    public boolean isR_c() {
-        return r_c;
-    }
-
-    public boolean isG_c() {
-        return g_c;
     }
 
     public boolean isW_ci() {
