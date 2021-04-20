@@ -16,8 +16,8 @@ public enum Rarity {
         };
     }
 
-    public static int toInt(Rarity val) {
-        return switch(val) {
+    public int toInt() {
+        return switch(this) {
             case COMMON -> 0;
             case UNCOMMON -> 1;
             case RARE -> 2;
@@ -32,6 +32,16 @@ public enum Rarity {
             case "rare" -> RARE;
             case "mythic" -> MYTHIC;
             default -> null;
+        };
+    }
+
+    @Override
+    public String toString() {
+        return switch(this) {
+            case COMMON -> "common";
+            case UNCOMMON -> "uncommon";
+            case RARE -> "rare";
+            case MYTHIC -> "mythic";
         };
     }
 }

@@ -6,35 +6,33 @@ import java.net.URL;
 
 import Card.*;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.UUID;
 
-import Card.Language;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 public class JSONDriver {
-    private static void parseCard(JSONObject card) {
-        // CARD TABLE
+    public static void parseCard(JSONObject card) {
+        // layout
+        final Layout layout = Layout.fromString((String) card.get("layout"));
+
+        if (layout == Layout.PLANAR || layout == Layout.SCHEME ||
+                layout == Layout.VANGUARD || layout == Layout.AUGMENT ||
+                layout == Layout.HOST || layout == Layout.ART_SERIES){
+            // Don't process funny/illegal cards
+            return;
+        }
+
         // name
         final String name = (String) card.get("name");
 
         // id - unique Scryfall ID
         final UUID id = UUID.fromString((String) card.get("id"));
 
-        // layout
-        final Layout layout = Layout.fromString((String) card.get("layout"));
-
         // cmc
-        final Integer cmc =  (Integer)(int)(double) card.get("cmc");
-
-        // type_line
-        final String type_line = (String) card.get("type_line");
+        final int cmc = (int)(double) card.get("cmc");
 
         // rarity
         final Rarity rarity = Rarity.fromString((String) card.get("rarity"));
@@ -46,8 +44,8 @@ public class JSONDriver {
         boolean b_ci = false;
         boolean r_ci = false;
         boolean g_ci = false;
-        for (int i = 0; i < color_identities.size(); i++) {
-            switch((String) color_identities.get(i)) {
+        for (Object color_identity : color_identities) {
+            switch ((String) color_identity) {
                 case "W" -> w_ci = true;
                 case "U" -> u_ci = true;
                 case "B" -> b_ci = true;
@@ -73,11 +71,14 @@ public class JSONDriver {
         // CARD FACES TABLE
         // Single faced Cards
         if (layout == Layout.NORMAL || layout == Layout.MELD ||
-            layout == Layout.LEVELER || layout == Layout.SAGA) {
+            layout == Layout.LEVELER || layout == Layout.SAGA ||
+            layout == Layout.TOKEN || layout == Layout.EMBLEM) {
             JSONObject image_uris = (JSONObject) card.get("image_uris");
             final String image_uri = (String) image_uris.get("normal");
 
             final String mana_cost = (String) card.get("mana_cost");
+
+            final String type_line = (String) card.get("type_line");
 
             final String oracle_text = (String) card.get("oracle_text");
 
@@ -85,14 +86,34 @@ public class JSONDriver {
 
             final String toughness = (String) card.get("toughness");
 
+            final String loyalty = (String) card.get("loyalty");
+
+            // Colors
+            JSONArray colors = (JSONArray) card.get("colors");
+            boolean w = false;
+            boolean u = false;
+            boolean b = false;
+            boolean r = false;
+            boolean g = false;
+            for (Object color : colors) {
+                switch ((String) color) {
+                    case "W" -> w = true;
+                    case "U" -> u = true;
+                    case "B" -> b = true;
+                    case "R" -> r = true;
+                    case "G" -> g = true;
+                    default -> System.out.println("unhandled color (one side): " + color);
+                }
+            }
+
             // Save to db
-            DBDriver.insertToCardsTable(id, name, layout, cmc, type_line, w_ci, u_ci, b_ci, r_ci, g_ci, standard, brawl, pioneer, historic, modern, pauper, legacy, penny, vintage, commander, rarity, image_uri, mana_cost, power, toughness);
-            DBDriver.insertToFacesTable(id, true, image_uri, oracle_text, power, toughness);
+            DBDriver.insertToCardsTable(id, name, layout, cmc, w_ci, u_ci, b_ci, r_ci, g_ci, standard, brawl, pioneer, historic, modern, pauper, legacy, penny, vintage, commander, rarity);
+            DBDriver.insertToFacesTable(id, true, image_uri, oracle_text, power, toughness, mana_cost, loyalty, type_line, w, u, b, r, g);
         }
         // Multifaced Cards
         else if (layout == Layout.SPLIT || layout == Layout.FLIP ||
                  layout == Layout.TRANSFORM || layout == Layout.MODAL_DFC ||
-                 layout == Layout.ADVENTURE) {
+                 layout == Layout.ADVENTURE || layout == Layout.DOUBLE_FACED_TOKEN) {
 
             JSONArray card_faces = (JSONArray) card.get("card_faces");
             JSONObject front = (JSONObject) card_faces.get(0);
@@ -105,11 +126,23 @@ public class JSONDriver {
             String back_power = (String) back.get("power");
             String front_toughness = (String) front.get("toughness");
             String back_toughness = (String) back.get("toughness");
-            String mana_cost = switch(layout) {
-                case SPLIT -> calculateSplitCost((String) card.get("mana_cost"));
-                case FLIP, ADVENTURE, TRANSFORM, MODAL_DFC -> (String) front.get("mana_cost");
-                default -> null;
-            };
+            String front_mana_cost = (String) front.get("mana_cost");
+            String back_mana_cost = (String) back.get("mana_cost");
+            String front_loyalty = (String) front.get("loyalty");
+            String back_loyalty = (String) back.get("loyalty");
+            String front_type_line = (String) front.get("type_line");
+            String back_type_line = (String) back.get("type_line");
+
+            boolean front_w = false;
+            boolean front_u = false;
+            boolean front_b = false;
+            boolean front_r = false;
+            boolean front_g = false;
+            boolean back_w = false;
+            boolean back_u = false;
+            boolean back_b = false;
+            boolean back_r = false;
+            boolean back_g = false;
 
             // Two faces, one side
             if (layout == Layout.SPLIT || layout == Layout.FLIP ||
@@ -117,6 +150,34 @@ public class JSONDriver {
                 // front_image
                 JSONObject images = (JSONObject) card.get("image_uris");
                 front_image = (String) images.get("normal");
+
+                // Colors
+                JSONArray colors = (JSONArray) card.get("colors");
+                for (Object color : colors) {
+                    switch ((String) color) {
+                        case "W" -> {
+                            front_w = true;
+                            back_w = true;
+                        }
+                        case "U" -> {
+                            front_u = true;
+                            back_u = true;
+                        }
+                        case "B" -> {
+                            front_b = true;
+                            back_b = true;
+                        }
+                        case "R" -> {
+                            front_r = true;
+                            back_r = true;
+                        }
+                        case "G" -> {
+                            front_g = true;
+                            back_g = true;
+                        }
+                        default -> System.out.println("unhandled color (two faces, one side): " + color);
+                    }
+                }
             }
             // Two faces, two sides
             else {
@@ -126,12 +187,36 @@ public class JSONDriver {
                 // back_image
                 JSONObject back_images = (JSONObject) back.get("image_uris");
                 back_image = (String) back_images.get("normal");
+
+                // Colors
+                JSONArray colors_front = (JSONArray) front.get("colors");
+                for (Object color : colors_front) {
+                    switch ((String) color) {
+                        case "W" -> front_w = true;
+                        case "U" -> front_u = true;
+                        case "B" -> front_b = true;
+                        case "R" -> front_r = true;
+                        case "G" -> front_g = true;
+                        default -> System.out.println("unhandled color (front): " + color);
+                    }
+                }
+                JSONArray colors_back = (JSONArray) back.get("colors");
+                for (Object color : colors_back) {
+                    switch ((String) color) {
+                        case "W" -> back_w = true;
+                        case "U" -> back_u = true;
+                        case "B" -> back_b = true;
+                        case "R" -> back_r = true;
+                        case "G" -> back_g = true;
+                        default -> System.out.println("unhandled color (back): '" + color);
+                    }
+                }
             }
 
             // Save to db
-            DBDriver.insertToCardsTable(id, name, layout, cmc, type_line, w_ci, u_ci, b_ci, r_ci, g_ci, standard, brawl, pioneer, historic, modern, pauper, legacy, penny, vintage, commander, rarity, front_image, mana_cost, front_power, front_toughness);
-            DBDriver.insertToFacesTable(id, true, front_image, front_oracle_text, front_power, front_toughness);
-            DBDriver.insertToFacesTable(id, false, back_image, back_oracle_text, back_power, back_toughness);
+            DBDriver.insertToCardsTable(id, name, layout, cmc, w_ci, u_ci, b_ci, r_ci, g_ci, standard, brawl, pioneer, historic, modern, pauper, legacy, penny, vintage, commander, rarity);
+            DBDriver.insertToFacesTable(id, true, front_image, front_oracle_text, front_power, front_toughness, front_mana_cost, front_loyalty, front_type_line, front_w, front_u, front_b, front_r, front_g);
+            DBDriver.insertToFacesTable(id, false, back_image, back_oracle_text, back_power, back_toughness, back_mana_cost, back_loyalty, back_type_line, back_w, back_u, back_b, back_r, back_g);
         }
         // New/Unhandled Cards
         else {
@@ -139,43 +224,6 @@ public class JSONDriver {
         }
 
     }
-
-    private static String calculateSplitCost(String cost) {
-        String[] costs = cost.replace(" // ", "").replace("{", "").split("}");
-        Arrays.sort(costs);
-        Integer gen_cost = 0;
-        StringBuilder hyb_cost = new StringBuilder();
-        StringBuilder x_cost = new StringBuilder();
-        StringBuilder col_cost = new StringBuilder();
-        for (int i = 0; i < costs.length; i++) {
-            // put X costs first
-            if (costs[i].equals("X")) {
-                x_cost.append("{X}");
-            } else
-
-                // hybrid mana
-                if (costs[i].contains("/")) {
-                    hyb_cost.append("{").append(costs[i]).append("}");
-                } else
-
-                    // Non-generic mana (WUBRG, Colorless, Snow and Phyrexian colorless)
-                    if (costs[i].matches("W|U|B|R|G|C|S|P")) {
-                        col_cost.append("{").append(costs[i]).append("}");
-                    }
-
-                    //
-                    else {
-                        gen_cost += Integer.parseInt(costs[i]);
-                    }
-        }
-
-        String gen_cost_str = "";
-        if (gen_cost > 0) {
-            gen_cost_str = "{" + gen_cost + "}";
-        }
-        return x_cost + gen_cost_str + hyb_cost + col_cost;
-    }
-
 
     public static void readUrl(String urlString) {
         JSONParser jsonParser = new JSONParser();
@@ -194,7 +242,7 @@ public class JSONDriver {
         try {
             URL url = new URL(urlString);
             reader = new BufferedReader(new InputStreamReader(url.openStream()));
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder buffer = new StringBuilder();
             int read;
             char[] chars = new char[1024];
             while ((read = reader.read(chars)) != -1)

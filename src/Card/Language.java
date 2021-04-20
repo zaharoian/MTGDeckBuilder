@@ -43,8 +43,8 @@ public enum Language {
         };
     }
 
-    public static int toInt(Language val) {
-        return switch (val) {
+    public int toInt() {
+        return switch (this) {
             case EN -> 0;
             case ES -> 1;
             case FR -> 2;
@@ -66,25 +66,48 @@ public enum Language {
     }
 
     public static Language fromString(String val) {
-        return switch(val.toUpperCase()) {
-            case "EN" -> EN;
-            case "ES" -> ES;
-            case "FR" -> FR;
-            case "DE" -> DE;
-            case "IT" -> IT;
-            case "PT" -> PT;
-            case "JA" -> JA;
-            case "KR" -> KR;
-            case "RU" -> RU;
-            case "ZHS" -> ZHS;
-            case "ZHT" -> ZHT;
-            case "HE" -> HE;
-            case "LA" -> LA;
-            case "GRC" -> GRC;
-            case "AR" -> AR;
-            case "SA" -> SA;
-            case "PH" -> PH;
+        return switch(val) {
+            case "en" -> EN;
+            case "es" -> ES;
+            case "fr" -> FR;
+            case "de" -> DE;
+            case "it" -> IT;
+            case "pt" -> PT;
+            case "ja" -> JA;
+            case "kr" -> KR;
+            case "ru" -> RU;
+            case "zhs" -> ZHS;
+            case "zht" -> ZHT;
+            case "he" -> HE;
+            case "la" -> LA;
+            case "grc" -> GRC;
+            case "ar" -> AR;
+            case "sa" -> SA;
+            case "ph" -> PH;
             default -> null;
+        };
+    }
+
+    @Override
+    public String toString() {
+        return switch(this) {
+            case EN -> "en";
+            case ES -> "es";
+            case FR -> "fr";
+            case DE -> "de";
+            case IT -> "it";
+            case PT -> "pt";
+            case JA -> "ja";
+            case KR -> "kr";
+            case RU -> "ru";
+            case ZHS -> "zhs";
+            case ZHT -> "zht";
+            case HE -> "he";
+            case LA -> "la";
+            case GRC -> "grc";
+            case AR -> "ar";
+            case SA -> "sa";
+            case PH -> "ph";
         };
     }
 }

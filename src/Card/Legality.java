@@ -17,8 +17,8 @@ public enum Legality {
         };
     }
 
-    public static int toInt(Legality val) {
-        return switch (val) {
+    public int toInt() {
+        return switch (this) {
             case LEGAL -> 0;
             case NOT_LEGAL -> 1;
             case RESTRICTED -> 2;
@@ -33,6 +33,16 @@ public enum Legality {
             case "restricted" -> RESTRICTED;
             case "banned" -> BANNED;
             default -> null;
+        };
+    }
+
+    @Override
+    public String toString() {
+        return switch (this) {
+            case LEGAL -> "legal";
+            case NOT_LEGAL -> "not_legal";
+            case RESTRICTED -> "restricted";
+            case BANNED -> "banned";
         };
     }
 }

@@ -1,9 +1,562 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<GridPane alignment="center" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MTGDeckBuilder.SampleController">
-    <Button text="Say 'Hello World'" onAction="#sayHelloWorld"/>
-    <Label GridPane.rowIndex="1" fx:id="helloWorld"/>
-</GridPane>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" pickOnBounds="false" prefHeight="800.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MTGDeckBuilder.SearchBarController">
+   <SplitPane prefHeight="800.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="-300.0" AnchorPane.topAnchor="0.0">
+      <items>
+           <VBox alignment="CENTER" maxWidth="300.0" pickOnBounds="false" style="-fx-background-color: white;">
+               <VBox pickOnBounds="false">
+                   <padding>
+                       <Insets left="10.0" right="10.0" top="10.0" />
+                   </padding>
+                   <HBox alignment="CENTER_LEFT" pickOnBounds="false">
+                       <ImageView fitHeight="20.0" fitWidth="20.0" preserveRatio="true">
+                           <HBox.margin>
+                               <Insets />
+                           </HBox.margin>
+                           <image>
+                               <Image url="@svgtopng/description-24px.png" />
+                           </image>
+                       </ImageView>
+                       <Label pickOnBounds="false" text="Card Name">
+                           <padding>
+                               <Insets left="5.0" />
+                           </padding>
+                           <font>
+                               <Font name="Avenir Book" size="14.0" />
+                           </font>
+                       </Label>
+                   </HBox>
+                   <HBox>
+                       <children>
+                           <TextField fx:id="searchTextField" onAction="#searchOnAction" prefWidth="250.0" promptText="e.g. &quot;Mountain&quot;" style="-fx-region-background: none; -fx-border-color: #ccc; -fx-border-radius: 3;">
+                               <font>
+                                   <Font name="Avenir Book" size="14.0" />
+                               </font>
+                               <HBox.margin>
+                                   <Insets right="5.0" />
+                               </HBox.margin>
+                           </TextField>
+                           <Button fx:id="searchButton" contentDisplay="GRAPHIC_ONLY" disable="true" mnemonicParsing="false" onAction="#searchOnAction" prefHeight="30.0" styleClass="search-button" text="Button" HBox.hgrow="ALWAYS">
+                               <graphic>
+                                   <ImageView fitHeight="22.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                           <Image url="@svgtopng/outline_search_black_18dp.png" />
+                                       </image>
+                                   </ImageView>
+                               </graphic>
+                               <HBox.margin>
+                                   <Insets right="5.0" />
+                               </HBox.margin>
+                           </Button>
+                           <Button fx:id="reloadSearchButton" contentDisplay="GRAPHIC_ONLY" disable="true" layoutX="189.0" layoutY="10.0" mnemonicParsing="false" onAction="#reloadSearchOnAction" prefHeight="30.0" styleClass="search-button" text="Button">
+                               <graphic>
+                                   <ImageView fitHeight="22.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                           <Image url="@svgtopng/outline_cached_black_18dp.png" />
+                                       </image>
+                                   </ImageView>
+                               </graphic>
+                           </Button>
+                       </children>
+                       <VBox.margin>
+                           <Insets top="5.0" />
+                       </VBox.margin>
+                   </HBox>
+               </VBox>
+               <Accordion pickOnBounds="false" style="-fx-background-color: none;">
+                   <panes>
+                       <TitledPane fx:id="titlePane" animated="false" expanded="false" pickOnBounds="false" text="Advanced">
+                           <content>
+                               <AnchorPane style="-fx-background-color: white;">
+                                   <children>
+                                       <VBox layoutX="21.4" layoutY="20.4" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                           <children>
+                                               <VBox>
+                                                   <children>
+                                                       <HBox alignment="CENTER_LEFT">
+                                                           <children>
+                                                               <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                                                   <image>
+                                                                       <Image url="@svgtopng/horizontal_split-24px.png" />
+                                                                   </image>
+                                                               </ImageView>
+                                                               <Label text="Text">
+                                                                   <padding>
+                                                                       <Insets left="5.0" />
+                                                                   </padding>
+                                                                   <font>
+                                                                       <Font name="Avenir Book" size="14.0" />
+                                                                   </font>
+                                                               </Label>
+                                                           </children>
+                                                       </HBox>
+                                                       <HBox alignment="CENTER_LEFT">
+                                                           <children>
+                                                               <TextField fx:id="textTextField" prefHeight="30.0" promptText="e.g. &quot;draw a card&quot;" style="-fx-region-background: none; -fx-border-color: #ccc; -fx-border-radius: 3;" HBox.hgrow="ALWAYS">
+                                                                   <HBox.margin>
+                                                                       <Insets />
+                                                                   </HBox.margin>
+                                                                   <font>
+                                                                       <Font name="Avenir Book" size="14.0" />
+                                                                   </font>
+                                                               </TextField>
+                                                           </children>
+                                                           <VBox.margin>
+                                                               <Insets top="5.0" />
+                                                           </VBox.margin>
+                                                       </HBox>
+                                                       <Label text="Word order doesn't matter" textFill="#00000099" textOverrun="CLIP">
+                                                           <VBox.margin>
+                                                               <Insets top="5.0" />
+                                                           </VBox.margin>
+                                                           <font>
+                                                               <Font name="Avenir Book" size="12.0" />
+                                                           </font>
+                                                       </Label>
+                                                       <Separator prefWidth="200.0">
+                                                           <VBox.margin>
+                                                               <Insets top="5.0" />
+                                                           </VBox.margin>
+                                                       </Separator>
+                                                   </children>
+                                               </VBox>
+                                               <VBox layoutX="10.0" layoutY="10.0">
+                                                   <children>
+                                                       <HBox alignment="CENTER_LEFT">
+                                                           <children>
+                                                               <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                                                   <image>
+                                                                       <Image url="@svgtopng/fingerprint-24px.png" />
+                                                                   </image>
+                                                               </ImageView>
+                                                               <Label text="Type Line">
+                                                                   <padding>
+                                                                       <Insets left="5.0" />
+                                                                   </padding>
+                                                                   <font>
+                                                                       <Font name="Avenir Book" size="14.0" />
+                                                                   </font>
+                                                               </Label>
+                                                           </children>
+                                                       </HBox>
+                                                       <TextField fx:id="typeTextField" prefHeight="30.0" promptText="e.g. &quot;Goblin&quot;" style="-fx-region-background: none; -fx-border-color: #ccc; -fx-border-radius: 3;">
+                                                           <VBox.margin>
+                                                               <Insets top="5.0" />
+                                                           </VBox.margin>
+                                                           <font>
+                                                               <Font name="Avenir Book" size="14.0" />
+                                                           </font>
+                                                       </TextField>
+                                                       <Separator prefWidth="200.0">
+                                                           <VBox.margin>
+                                                               <Insets top="5.0" />
+                                                           </VBox.margin>
+                                                       </Separator>
+                                                   </children>
+                                                   <VBox.margin>
+                                                       <Insets top="5.0" />
+                                                   </VBox.margin>
+                                               </VBox>
+                                               <VBox layoutX="10.0" layoutY="78.0">
+                                                   <children>
+                                                       <HBox alignment="CENTER_LEFT">
+                                                           <children>
+                                                               <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                                                   <image>
+                                                                       <Image url="@svgtopng/drag_indicator-24px.png" />
+                                                                   </image>
+                                                               </ImageView>
+                                                               <RadioButton fx:id="colorRadioButton" mnemonicParsing="false" selected="true" text="Color">
+                                                                   <HBox.margin>
+                                                                       <Insets right="10.0" />
+                                                                   </HBox.margin>
+                                                                   <font>
+                                                                       <Font name="Avenir Book" size="14.0" />
+                                                                   </font>
+                                                   <toggleGroup>
+                                                                       <ToggleGroup fx:id="color_identity" />
+                                                   </toggleGroup>
+                                                               </RadioButton>
+                                                               <RadioButton fx:id="identityRadioButton" layoutX="30.0" layoutY="12.0" mnemonicParsing="false" text="Identity" toggleGroup="$color_identity">
+                                                                   <font>
+                                                                       <Font name="Avenir Book" size="14.0" />
+                                                                   </font>
+                                                               </RadioButton>
+                                                           </children>
+                                                           <VBox.margin>
+                                                               <Insets bottom="5.0" />
+                                                           </VBox.margin>
+                                                       </HBox>
+                                                       <HBox alignment="TOP_CENTER">
+                                                           <children>
+                                                               <ToggleButton fx:id="whiteButton" contentDisplay="GRAPHIC_ONLY" graphicTextGap="0.0" mnemonicParsing="false" onAction="#colorOnAction" opacity="0.4" styleClass="image-button" text="White">
+                                                                   <graphic>
+                                                                       <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                                                           <image>
+                                                                               <Image url="@svgtopng/White.png" />
+                                                                           </image>
+                                                                       </ImageView>
+                                                                   </graphic>
+                                                                   <HBox.margin>
+                                                                       <Insets />
+                                                                   </HBox.margin>
+                                                               </ToggleButton>
+                                                               <ToggleButton fx:id="blueButton" contentDisplay="GRAPHIC_ONLY" graphicTextGap="0.0" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#colorOnAction" opacity="0.4" styleClass="image-button" text="Blue">
+                                                                   <graphic>
+                                                                       <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                                                           <image>
+                                                                               <Image url="@svgtopng/Blue.png" />
+                                                                           </image>
+                                                                       </ImageView>
+                                                                   </graphic>
+                                                                   <HBox.margin>
+                                                                       <Insets />
+                                                                   </HBox.margin>
+                                                               </ToggleButton>
+                                                               <ToggleButton fx:id="blackButton" contentDisplay="GRAPHIC_ONLY" graphicTextGap="0.0" layoutX="58.0" layoutY="10.0" mnemonicParsing="false" onAction="#colorOnAction" opacity="0.4" styleClass="image-button" text="Black">
+                                                                   <graphic>
+                                                                       <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                                                           <image>
+                                                                               <Image url="@svgtopng/Black.png" />
+                                                                           </image>
+                                                                       </ImageView>
+                                                                   </graphic>
+                                                                   <HBox.margin>
+                                                                       <Insets />
+                                                                   </HBox.margin>
+                                                               </ToggleButton>
+                                                               <ToggleButton fx:id="redButton" contentDisplay="GRAPHIC_ONLY" graphicTextGap="0.0" layoutX="106.0" layoutY="10.0" mnemonicParsing="false" onAction="#colorOnAction" opacity="0.4" styleClass="image-button" text="Red">
+                                                                   <graphic>
+                                                                       <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                                                           <image>
+                                                                               <Image url="@svgtopng/Red.png" />
+                                                                           </image>
+                                                                       </ImageView>
+                                                                   </graphic>
+                                                                   <HBox.margin>
+                                                                       <Insets />
+                                                                   </HBox.margin>
+                                                               </ToggleButton>
+                                                               <ToggleButton fx:id="greenButton" contentDisplay="GRAPHIC_ONLY" graphicTextGap="0.0" layoutX="154.0" layoutY="10.0" mnemonicParsing="false" onAction="#colorOnAction" opacity="0.4" styleClass="image-button" text="Green">
+                                                                   <graphic>
+                                                                       <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                                                           <image>
+                                                                               <Image url="@svgtopng/Green.png" />
+                                                                           </image>
+                                                                       </ImageView>
+                                                                   </graphic>
+                                                                   <HBox.margin>
+                                                                       <Insets />
+                                                                   </HBox.margin>
+                                                               </ToggleButton>
+                                                               <ToggleButton fx:id="colorlessButton" contentDisplay="GRAPHIC_ONLY" graphicTextGap="0.0" layoutX="202.0" layoutY="10.0" mnemonicParsing="false" onAction="#colorOnAction" opacity="0.4" styleClass="image-button" text="Colorless">
+                                                                   <graphic>
+                                                                       <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                                                           <image>
+                                                                               <Image url="@svgtopng/Colorless.png" />
+                                                                           </image>
+                                                                       </ImageView>
+                                                                   </graphic>
+                                                               </ToggleButton>
+                                                           </children>
+                                                       </HBox>
+                                                       <Separator prefWidth="200.0">
+                                                           <VBox.margin>
+                                                               <Insets top="5.0" />
+                                                           </VBox.margin>
+                                                       </Separator>
+                                                   </children>
+                                                   <VBox.margin>
+                                                       <Insets top="5.0" />
+                                                   </VBox.margin>
+                                               </VBox>
+                                               <VBox layoutX="10.0" layoutY="141.0">
+                                                   <children>
+                                                       <HBox alignment="CENTER_LEFT">
+                                                           <children>
+                                                               <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                                                   <image>
+                                                                       <Image url="@svgtopng/drag_indicator-24px.png" />
+                                                                   </image>
+                                                               </ImageView>
+                                                               <Label text="Rarity">
+                                                                   <padding>
+                                                                       <Insets left="5.0" />
+                                                                   </padding>
+                                                                   <font>
+                                                                       <Font name="Avenir Book" size="14.0" />
+                                                                   </font>
+                                                   <HBox.margin>
+                                                      <Insets right="5.0" />
+                                                   </HBox.margin>
+                                                               </Label>
+                                                               <ToggleButton fx:id="commonButton" contentDisplay="GRAPHIC_ONLY" graphicTextGap="0.0" mnemonicParsing="false" onAction="#colorOnAction" opacity="0.4" styleClass="image-button" text="Common">
+                                                                   <HBox.margin>
+                                                                       <Insets />
+                                                                   </HBox.margin>
+                                                   <graphic>
+                                                      <Region maxHeight="26.0" maxWidth="32.0" minHeight="26.0" minWidth="32.0" prefHeight="26.0" prefWidth="32.0">
+                                                         <styleClass>
+                                                            <String fx:value="rarity-button-region" />
+                                                            <String fx:value="common" />
+                                                         </styleClass>
+                                                      </Region>
+                                                   </graphic>
+                                                               </ToggleButton>
+                                                               <ToggleButton fx:id="uncommonButton" contentDisplay="GRAPHIC_ONLY" graphicTextGap="0.0" mnemonicParsing="false" onAction="#colorOnAction" opacity="0.4" styleClass="image-button" text="Uncommon">
+                                                                   <HBox.margin>
+                                                                       <Insets />
+                                                                   </HBox.margin>
+                                                   <graphic>
+                                                      <Region maxHeight="26.0" maxWidth="32.0" minHeight="26.0" minWidth="32.0" prefHeight="26.0" prefWidth="32.0">
+                                                         <styleClass>
+                                                            <String fx:value="rarity-button-region" />
+                                                            <String fx:value="uncommon" />
+                                                         </styleClass>
+                                                      </Region>
+                                                   </graphic>
+                                                               </ToggleButton>
+                                                               <ToggleButton fx:id="rareButton" contentDisplay="GRAPHIC_ONLY" graphicTextGap="0.0" mnemonicParsing="false" onAction="#colorOnAction" opacity="0.4" styleClass="image-button" text="Rare">
+                                                   <graphic>
+                                                      <Region maxHeight="26.0" maxWidth="32.0" minHeight="26.0" minWidth="32.0" prefHeight="26.0" prefWidth="32.0">
+                                                         <styleClass>
+                                                            <String fx:value="rarity-button-region" />
+                                                            <String fx:value="rare" />
+                                                         </styleClass>
+                                                      </Region>
+                                                   </graphic>
+                                                               </ToggleButton>
+                                                               <ToggleButton fx:id="mythicButton" contentDisplay="GRAPHIC_ONLY" graphicTextGap="0.0" mnemonicParsing="false" onAction="#colorOnAction" opacity="0.4" styleClass="image-button" text="Mythic">
+                                                   <graphic>
+                                                      <Region maxHeight="26.0" maxWidth="32.0" minHeight="26.0" minWidth="32.0" prefHeight="26.0" prefWidth="32.0">
+                                                         <styleClass>
+                                                            <String fx:value="rarity-button-region" />
+                                                            <String fx:value="mythic" />
+                                                         </styleClass>
+                                                      </Region>
+                                                   </graphic>
+                                                               </ToggleButton>
+                                                           </children>
+                                                           <VBox.margin>
+                                                               <Insets bottom="5.0" />
+                                                           </VBox.margin>
+                                                       </HBox>
+                                                       <Separator prefWidth="200.0">
+                                                           <VBox.margin>
+                                                               <Insets top="5.0" />
+                                                           </VBox.margin>
+                                                       </Separator>
+                                                   </children>
+                                                   <VBox.margin>
+                                                       <Insets top="5.0" />
+                                                   </VBox.margin>
+                                               </VBox>
+                                               <VBox layoutX="10.0" layoutY="10.0">
+                                                   <children>
+                                                       <HBox alignment="CENTER_LEFT">
+                                                           <children>
+                                                               <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                                                   <image>
+                                                                       <Image url="@svgtopng/paid-24px.png" />
+                                                                   </image>
+                                                               </ImageView>
+                                                               <Label text="Mana Cost">
+                                                                   <padding>
+                                                                       <Insets left="5.0" />
+                                                                   </padding>
+                                                                   <font>
+                                                                       <Font name="Avenir Book" size="14.0" />
+                                                                   </font>
+                                                               </Label>
+                                                           </children>
+                                                       </HBox>
+                                                       <HBox alignment="CENTER_LEFT">
+                                                           <children>
+                                                               <TextField fx:id="manaCostTextField" prefHeight="30.0" promptText="e.g. &quot;{G}{G}&quot;" style="-fx-region-background: none; -fx-border-color: #ccc; -fx-border-radius: 3;" HBox.hgrow="ALWAYS">
+                                                                   <HBox.margin>
+                                                                       <Insets />
+                                                                   </HBox.margin>
+                                                                   <font>
+                                                                       <Font name="Avenir Book" size="14.0" />
+                                                                   </font>
+                                                               </TextField>
+                                                           </children>
+                                                           <VBox.margin>
+                                                               <Insets top="5.0" />
+                                                           </VBox.margin>
+                                                       </HBox>
+                                                       <Separator prefWidth="200.0">
+                                                           <VBox.margin>
+                                                               <Insets top="5.0" />
+                                                           </VBox.margin>
+                                                       </Separator>
+                                                   </children>
+                                                   <VBox.margin>
+                                                       <Insets top="5.0" />
+                                                   </VBox.margin>
+                                               </VBox>
+                                               <VBox layoutX="10.0" layoutY="278.0">
+                                                   <children>
+                                                       <HBox alignment="CENTER_LEFT">
+                                                           <children>
+                                                               <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                                                   <image>
+                                                                       <Image url="@svgtopng/settings_input_component-24px.png" />
+                                                                   </image>
+                                                               </ImageView>
+                                                               <Label text="Stats">
+                                                                   <padding>
+                                                                       <Insets left="5.0" />
+                                                                   </padding>
+                                                                   <font>
+                                                                       <Font name="Avenir Book" size="14.0" />
+                                                                   </font>
+                                                               </Label>
+                                                           </children>
+                                                       </HBox>
+                                                       <HBox alignment="CENTER_LEFT">
+                                                           <children>
+                                                               <TextField fx:id="statsTextField" prefHeight="30.0" promptText="e.g. &quot;2&quot;" style="-fx-region-background: none; -fx-border-color: #ccc; -fx-border-radius: 3;" HBox.hgrow="ALWAYS">
+                                                                   <HBox.margin>
+                                                                       <Insets right="5.0" />
+                                                                   </HBox.margin>
+                                                                   <font>
+                                                                       <Font name="Avenir Book" size="14.0" />
+                                                                   </font>
+                                                               </TextField>
+                                                           </children>
+                                                           <VBox.margin>
+                                                               <Insets top="5.0" />
+                                                           </VBox.margin>
+                                                       </HBox>
+                                                       <Separator prefWidth="200.0">
+                                                           <VBox.margin>
+                                                               <Insets top="5.0" />
+                                                           </VBox.margin>
+                                                       </Separator>
+                                                   </children>
+                                                   <VBox.margin>
+                                                       <Insets top="5.0" />
+                                                   </VBox.margin>
+                                               </VBox>
+                                               <VBox layoutX="10.0" layoutY="356.0">
+                                                   <children>
+                                                       <HBox alignment="CENTER_LEFT">
+                                                           <children>
+                                                               <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                                                   <image>
+                                                                       <Image url="@svgtopng/bookmarks-24px.png" />
+                                                                   </image>
+                                                               </ImageView>
+                                                               <Label text="Format">
+                                                                   <padding>
+                                                                       <Insets left="5.0" />
+                                                                   </padding>
+                                                                   <font>
+                                                                       <Font name="Avenir Book" size="14.0" />
+                                                                   </font>
+                                                               </Label>
+                                                           </children>
+                                                       </HBox>
+                                                       <ComboBox fx:id="formatComboBox" prefWidth="150.0" styleClass="format-combo-box">
+                                                           <items>
+                                                               <FXCollections fx:factory="observableArrayList">
+                                                                   <String fx:value="Standard" />
+                                                                   <String fx:value="Brawl" />
+                                                                   <String fx:value="Pioneer" />
+                                                                   <String fx:value="Historic" />
+                                                                   <String fx:value="Modern" />
+                                                                   <String fx:value="Pauper" />
+                                                                   <String fx:value="Legacy" />
+                                                                   <String fx:value="Penny" />
+                                                                   <String fx:value="Vintage" />
+                                                                   <String fx:value="Commander" />
+                                                               </FXCollections>
+                                                           </items>
+                                                           <VBox.margin>
+                                                               <Insets top="5.0" />
+                                                           </VBox.margin>
+                                                       </ComboBox>
+                                                   </children>
+                                                   <VBox.margin>
+                                                       <Insets top="5.0" />
+                                                   </VBox.margin>
+                                               </VBox>
+                                           </children>
+                                       </VBox>
+                                   </children>
+                               </AnchorPane>
+                           </content>
+                           <font>
+                               <Font name="Avenir Book" size="14.0" />
+                           </font>
+                       </TitledPane>
+                   </panes>
+               </Accordion>
+            <VBox>
+               <children>
+                  <Label fx:id="numResults" text="Total results: 0">
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                     <padding>
+                        <Insets left="10.0" />
+                     </padding>
+                     <font>
+                        <Font name="Avenir Book" size="14.0" />
+                     </font>
+                  </Label>
+                     <HBox alignment="CENTER">
+                         <children>
+                        <VBox alignment="CENTER" maxHeight="51.0" minHeight="51.0" minWidth="90.0" onMouseClicked="#onSortMouseClicked" prefHeight="51.0" prefWidth="90.0">
+                           <children>
+                                     <ImageView fx:id="sortComboBoxImageView" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                         <image>
+                                             <Image url="@svgtopng/alphabetical-order.png" />
+                                         </image>
+                                 <VBox.margin>
+                                    <Insets />
+                                 </VBox.margin>
+                                     </ImageView>
+                              <ComboBox fx:id="sortComboBox" onAction="#orderNameOnAction" prefWidth="90.0" styleClass="sort-combo-box">
+                                 <VBox.margin>
+                                    <Insets top="-4.0" />
+                                 </VBox.margin>
+                              </ComboBox>
+                           </children>
+                           <padding>
+                              <Insets top="5.0" />
+                           </padding>
+                        </VBox>
+                             <Button fx:id="orderDesc" alignment="CENTER" contentDisplay="TOP" graphicTextGap="0.0" mnemonicParsing="false" onAction="#orderDescOnAction" prefWidth="90.0" styleClass="image-button" text="Ascending" HBox.hgrow="ALWAYS">
+                                 <HBox.margin>
+                                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </HBox.margin>
+                                 <graphic>
+                                     <ImageView fx:id="orderDescImageView" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                         <image>
+                                             <Image url="@svgtopng/sort-down.png" />
+                                         </image>
+                                     </ImageView>
+                                 </graphic>
+                                 <font>
+                                     <Font name="Avenir Book" size="12.0" />
+                                 </font>
+                             </Button>
+                         </children>
+                     </HBox>
+               </children>
+            </VBox>
+            <ListView fx:id="listView" prefHeight="997.0" prefWidth="300.0" styleClass="searchlistview" VBox.vgrow="ALWAYS" />
+           </VBox>
+      </items>
+   </SplitPane>
+</AnchorPane>

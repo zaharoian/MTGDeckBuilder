@@ -13,7 +13,13 @@ public enum Layout {
     ADVENTURE,          // 2 Faces - Cards with an Adventure spell part
     TOKEN,              // 1 Face  - Token cards
     DOUBLE_FACED_TOKEN, // 2 Faces - Tokens with another token printed on the back
-    EMBLEM;             // 1 Face  - Emblem cards
+    EMBLEM,             // 1 Face  - Emblem cards
+    PLANAR,             // 1 Face  - Plane and Phenomenon-type cards
+    SCHEME,             // 1 Face  - Scheme-type cards
+    VANGUARD,           // 1 Face  - Vanguard-type cards
+    AUGMENT,            // 1 Face  - Cards with Augment
+    HOST,               // 1 Face  - Host-type cards
+    ART_SERIES;         // 2 Faces - Art Series cards
 
     public static Layout fromInt(int val) {
         return switch (val) {
@@ -29,12 +35,18 @@ public enum Layout {
             case 9 -> TOKEN;
             case 10 -> DOUBLE_FACED_TOKEN;
             case 11 -> EMBLEM;
+            case 12 -> PLANAR;
+            case 13 -> SCHEME;
+            case 14 -> VANGUARD;
+            case 15 -> AUGMENT;
+            case 16 -> HOST;
+            case 17 -> ART_SERIES;
             default -> null;
         };
     }
 
-    public static int toInt(Layout val) {
-        return switch (val) {
+    public int toInt() {
+        return switch (this) {
             case NORMAL -> 0;
             case SPLIT -> 1;
             case FLIP -> 2;
@@ -47,6 +59,12 @@ public enum Layout {
             case TOKEN -> 9;
             case DOUBLE_FACED_TOKEN -> 10;
             case EMBLEM -> 11;
+            case PLANAR -> 12;
+            case SCHEME -> 13;
+            case VANGUARD -> 14;
+            case AUGMENT -> 15;
+            case HOST -> 16;
+            case ART_SERIES -> 17;
         };
     }
 
@@ -64,7 +82,37 @@ public enum Layout {
             case "token" -> TOKEN;
             case "double_faced_token" -> DOUBLE_FACED_TOKEN;
             case "emblem" -> EMBLEM;
+            case "planar" -> PLANAR;
+            case "scheme" -> SCHEME;
+            case "vanguard" -> VANGUARD;
+            case "augment" -> AUGMENT;
+            case "host" -> HOST;
+            case "art_series" -> ART_SERIES;
             default -> null;
+        };
+    }
+
+    @Override
+    public String toString() {
+        return switch (this) {
+            case NORMAL -> "normal";
+            case SPLIT -> "split";
+            case FLIP -> "flip";
+            case TRANSFORM -> "transform";
+            case MODAL_DFC -> "modal_dfc";
+            case MELD -> "meld";
+            case LEVELER -> "leveler";
+            case SAGA -> "saga";
+            case ADVENTURE -> "adventure";
+            case TOKEN -> "token";
+            case DOUBLE_FACED_TOKEN -> "double_faced_token";
+            case EMBLEM -> "emblem";
+            case PLANAR -> "planar";
+            case SCHEME -> "scheme";
+            case VANGUARD -> "vanguard";
+            case AUGMENT -> "augment";
+            case HOST -> "host";
+            case ART_SERIES -> "art_series";
         };
     }
 }
