@@ -4,17 +4,14 @@ import Card.*;
 import Card.Color;
 import Database.DBDriver;
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -26,23 +23,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.TransferMode;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Callback;
-import org.sqlite.core.DB;
-import org.w3c.dom.Text;
-import org.w3c.dom.css.Rect;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.net.URL;
 import java.util.*;
-import java.util.function.IntFunction;
 
 public class SearchBarController {
 
@@ -75,6 +64,7 @@ public class SearchBarController {
     public ComboBox<String> sortComboBox;
     public ImageView sortComboBoxImageView;
     public ImageView orderTextImageView;
+    public ListView<Card> deckView;
 
     private boolean textEmpty = true;
     private boolean typeEmpty = true;
@@ -98,6 +88,7 @@ public class SearchBarController {
 
 
     public static ObservableList<Card> data = FXCollections.observableArrayList();
+    public static ObservableList<Card> deck = FXCollections.observableArrayList();
     public static UUID[] full_data;
     private static int step = 10;
     private static int start = 0;
@@ -110,8 +101,20 @@ public class SearchBarController {
                 return new ImageCell();
             }
         });
+        deckView.setCellFactory(new Callback<ListView<Card>, ListCell<Card>>() {
+            @Override
+            public ListCell<Card> call(ListView<Card> cardListView) {
+                return new CardCell();
+            }
+        });
+        deckView.setFixedCellSize(345);
         listView.setFixedCellSize(345);
+        deckView.setSelectionModel(new NoSelectionModel<Card>());
+        listView.setSelectionModel(new NoSelectionModel<Card>());
+        deckView.setFocusTraversable(false);
+        listView.setFocusTraversable(false);
         listView.setItems(data);
+        deckView.setItems(deck);
 
         ObservableList<String> sortNames = FXCollections.observableArrayList();
         sortNames.addAll("Name", "CMC", "Power", "Toughness", "Rarity");
@@ -119,7 +122,6 @@ public class SearchBarController {
         sortComboBox.setValue("Name");
 
         ChangeListener<String> resetTextListener = new ChangeListener<String>() {
-
             @Override
             public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
                 String id = ((TextField) ((StringProperty) observableValue).getBean()).getId();
@@ -186,6 +188,7 @@ public class SearchBarController {
             }
         });
 
+        loadDeckList();
 
     }
 
@@ -229,19 +232,53 @@ public class SearchBarController {
         }
     }
 
+    private void loadDeckList() {
+        UUID[] ids = DBDriver.getDeckItems();
+        Task<Card> task = new Task<Card>() {
+            @Override
+            protected Card call() throws Exception {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        deckView.getItems().clear();
+                        for (UUID id : ids) {
+                            Card card = DBDriver.getCard(id);
+                            deck.add(card);
+
+                        }
+                    }
+                });
+                return null;
+            }
+        };
+
+        Thread th = new Thread(task);
+        th.start();
+    }
 
     private void loadResults(boolean newResults) {
+        System.out.println("load results: " + newResults);
+        System.out.println("start: " + start);
+        System.out.println("full_data.length: " + full_data.length);
         // Do nothing if there are no more results to return
         if (start >= full_data.length) return;
 
         int end = Math.min(start + step, full_data.length);
 
+        System.out.println("end: " +end);
         UUID[] page = new UUID[end - start];
+        System.out.println("page length: " + page.length);
 
         for (int i = start; i < end; i++ ) {
             page[i - start] = full_data[i];
         }
         start = end;
+
+        ArrayList<Card> cards = new ArrayList<Card>();
+        for (UUID id : page) {
+            Card card = DBDriver.getCard(id);
+            cards.add(card);
+        }
 
         // Create a task to retrieve cards
         Task<Card> task = new Task<Card>() {
@@ -254,44 +291,33 @@ public class SearchBarController {
                             // Clear results
                             listView.getItems().clear();
                         }
-                    }
-                });
+                        int oldSize = data.size();
 
-                ArrayList<Card> cards = new ArrayList<Card>();
-                for (UUID id : page) {
-                    Card card = DBDriver.getCard(id);
-                    cards.add(card);
-                }
-                int oldSize = data.size();
-                for (Card card : cards) {
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            data.add(card);
+                        data.addAll(cards);
 
-                        }
-                    });
-                }
-
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
                         ScrollBar bar = getListViewScrollBar(listView);
                         double targetValue = bar.getValue() * oldSize;
                         bar.setValue(targetValue / data.size());
-
                     }
                 });
-                for (Card card : cards) {
-                    card.downloadImages();
-                }
-
                 return null;
             }
         };
 
-        Thread th = new Thread(task);
-        th.start();
+        Task<Card> imageDownload = new Task<Card>() {
+            @Override
+            protected Card call() throws Exception {
+                for (Card card : cards) {
+                    card.downloadImages();
+                }
+                return null;
+            }
+        };
+
+        Thread th1 = new Thread(task);
+        th1.start();
+        Thread th2 = new Thread(imageDownload);
+        th2.start();
 
     }
 
@@ -387,6 +413,8 @@ public class SearchBarController {
         sortComboBox.show();
     }
 
+
+
     public class ImageCell extends ListCell<Card> implements PropertyChangeListener {
         private final ImageView cardImageView = new ImageView();
         private final HBox invalidHighlightBorder = new HBox(new Rectangle(236, 340, null));
@@ -396,9 +424,10 @@ public class SearchBarController {
         private final ProgressIndicator loadingIndicator = new ProgressIndicator();
         private final StackPane imageStackPane = new StackPane(cardImageView, invalidHighlightBorder, cardTop, loadingIndicator);
         private final Button addButton = new Button();
+        private final Button moreButton = new Button();
         private final Spinner<Integer> addSpinner = new Spinner<Integer>(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 200));
         private final StackPane addButtonPane = new StackPane(addButton, addSpinner);
-        private final VBox buttonVBox = new VBox(addButtonPane);
+        private final VBox buttonVBox = new VBox(addButtonPane, moreButton);
         private final HBox root = new HBox(imageStackPane, buttonVBox);
 
         private String path = null;
@@ -421,20 +450,20 @@ public class SearchBarController {
             clip.getChildren().addAll(rect1, rect2);
             cardImageView.setClip(clip);
             cardImageView.setViewport(new Rectangle2D(0, 0, 236, 340));
-            imageStackPane.setOnDragDetected(new EventHandler<MouseEvent>() {
-                @Override
-                public void handle(MouseEvent mouseEvent) {
-                    if (imageLoaded) {
-                        Dragboard db = imageStackPane.startDragAndDrop(TransferMode.COPY);
-
-                        ClipboardContent content = new ClipboardContent();
-                        content.putImage(new Image(path, 122, 170, true, true));
-                        db.setContent(content);
-
-                        mouseEvent.consume();
-                    }
-                }
-            });
+//            imageStackPane.setOnDragDetected(new EventHandler<MouseEvent>() {
+//                @Override
+//                public void handle(MouseEvent mouseEvent) {
+//                    if (imageLoaded) {
+//                        Dragboard db = imageStackPane.startDragAndDrop(TransferMode.COPY);
+//
+//                        ClipboardContent content = new ClipboardContent();
+//                        content.putImage(new Image(path, 122, 170, true, true));
+//                        db.setContent(content);
+//
+//                        mouseEvent.consume();
+//                    }
+//                }
+//            });
 
             // Toggle flag
             toggleCardFlag.setVisible(false);
@@ -486,11 +515,10 @@ public class SearchBarController {
                 @Override
                 public void handle(ActionEvent actionEvent) {
                     num_copies = 1;
-                    addSpinner.increment();
-                    addSpinner.setVisible(true);
-                    addSpinner.setDisable(false);
-                    addButton.setVisible(false);
-                    addButton.setDisable(true);
+                    changeCopies();
+                    enableAddSpinner();
+                    DBDriver.setCopyNumber(card.getId(), 1);
+                    loadDeckList();
                 }
             });
             // Icon
@@ -505,24 +533,196 @@ public class SearchBarController {
             addSpinner.getStyleClass().add(Spinner.STYLE_CLASS_SPLIT_ARROWS_VERTICAL);
             addSpinner.setMaxHeight(340);
             addSpinner.setMaxWidth(32);
-            addSpinner.setEditable(true);
+            addSpinner.setEditable(false);
             addSpinner.setVisible(false);
             addSpinner.setFocusTraversable(false);
             addSpinner.editorProperty().get().setAlignment(Pos.CENTER);
             addSpinner.valueProperty().addListener((obs, oldValue, newValue) -> {
                 if (newValue == 0) {
-                    addButton.setVisible(true);
-                    addButton.setDisable(false);
-                    addSpinner.setVisible(false);
-                    addSpinner.setDisable(true);
-                    num_copies = 0;
-                } else {
-                    num_copies = newValue;
+                    enableAddButton();
                 }
-
+                num_copies = newValue;
+                changeCopies();
+                DBDriver.setCopyNumber(card.getId(), num_copies);
+                loadDeckList();
             });
 
+            moreButton.setMaxHeight(340);
+            moreButton.setPrefHeight(169);
+            moreButton.setMaxWidth(32);
 
+            Region arrow_icon = new Region();
+            arrow_icon.getStyleClass().add("arrow-icon");
+            moreButton.setGraphic(arrow_icon);
+            moreButton.getStyleClass().add("card-button-blue");
+            VBox.setVgrow(moreButton, Priority.ALWAYS);
+
+
+            addButtonPane.setMaxHeight(340);
+            addButtonPane.setPrefHeight(170);
+            addButtonPane.setMaxWidth(32);
+        }
+
+        @Override
+        public void updateItem(Card newCard, boolean empty) {
+            super.updateItem(newCard, empty);
+            if (!empty || newCard != null) {
+
+                card = newCard;
+
+                resetCard();
+                path = card.getFront_image_path();
+                num_copies = DBDriver.getCopyNumber(card.getId());
+                changeCopies();
+                if (num_copies > 0) {
+                    enableAddSpinner();
+                } else {
+                    enableAddButton();
+                }
+
+                if (card.isDouble_faced()) {
+                    toggleCardFlag.setVisible(true);
+                    toggleCardFlag.setDisable(false);
+                }
+
+                if (card.getCardsDownloaded()) {
+                    loadImage();
+                } else {
+                    card.addCardsDownloadedListener(this);
+                }
+            } else {
+                setGraphic(null);
+            }
+        }
+
+        public void loadImage() {
+            File file = new File(card.getFront_image_path());
+            System.out.println(file);
+            path = file.toURI().toString(); // 236
+            System.out.println(path);
+            Image image = new Image(path, 244, 340, true, true);
+            System.out.println(image);
+            cardImageView.setImage(image);
+            imageLoaded = true;
+            loadingIndicator.setVisible(false);
+            addButton.setDisable(false);
+            if (card.isDouble_faced()) {
+                file = new File(card.getBack_image_path());
+                path2 = file.toURI().toString();
+            }
+        }
+
+        private void changeCopies() {
+            numCopiesLabel.setText(String.valueOf(num_copies));
+            if (num_copies > 0) {
+                numCopiesLabel.setVisible(true);
+            } else {
+                numCopiesLabel.setVisible(false);
+            }
+        }
+
+        private void enableAddButton() {
+            addButton.setVisible(true);
+            addButton.setDisable(false);
+            addSpinner.setVisible(false);
+            addSpinner.setDisable(true);
+        }
+
+        private void enableAddSpinner() {
+            addButton.setVisible(false);
+            addButton.setDisable(true);
+            addSpinner.setVisible(true);
+            addSpinner.setDisable(false);
+            addSpinner.getValueFactory().setValue(num_copies);
+        }
+
+        private void resetCard() {
+            setGraphic(root);
+            num_copies = 0;
+            cardImageView.setImage(null);
+            enableAddButton();
+            invalidHighlightBorder.setVisible(false);
+            toggleCardFlag.setVisible(false);
+            toggleCardFlag.setDisable(true);
+            numCopiesLabel.setVisible(false);
+            loadingIndicator.setVisible(true);
+        }
+
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (evt.getPropertyName().equals("ListenableBoolean") && (boolean) evt.getNewValue()) {
+                loadImage();
+            }
+        }
+    }
+
+    public class CardCell extends ListCell<Card> implements PropertyChangeListener {
+        private final ImageView cardImageView = new ImageView();
+        private final HBox invalidHighlightBorder = new HBox(new Rectangle(236, 340, null));
+        private final Label numCopiesLabel = new Label();
+        private final Button toggleCardFlag = new Button();
+        private final BorderPane cardTop = new BorderPane();
+        private final ProgressIndicator loadingIndicator = new ProgressIndicator();
+        private final StackPane imageStackPane = new StackPane(cardImageView, invalidHighlightBorder, cardTop, loadingIndicator);
+        private final HBox root = new HBox(imageStackPane);
+
+        private String path = null;
+        private String path2 = null;
+        private boolean flipped = false;
+        private boolean imageLoaded = false;
+        private Card card = null;
+        private int num_copies = 0;
+
+        public CardCell() {
+            root.setAlignment(Pos.CENTER);
+
+            //  Image setup
+            Rectangle rect1 = new Rectangle(0, 0, 244, 340);
+            rect1.setArcWidth(25);
+            rect1.setArcHeight(25);
+            cardImageView.setClip(rect1);
+            cardImageView.setPreserveRatio(true);
+
+            // Toggle flag
+            toggleCardFlag.setVisible(false);
+            toggleCardFlag.setDisable(true);
+            toggleCardFlag.getStyleClass().add("toggle-flag");
+            toggleCardFlag.setText(null);
+            toggleCardFlag.setAlignment(Pos.TOP_RIGHT);
+            toggleCardFlag.setFocusTraversable(false);
+            toggleCardFlag.setOnAction(new EventHandler<ActionEvent>() {
+                                           @Override
+                                           public void handle(ActionEvent actionEvent) {
+                                               if (imageLoaded) {
+                                                   flipped = !flipped;
+                                                   cardImageView.setImage(new Image(flipped ? path2 : path, 244, 340, true, true));
+                                               }
+                                           }
+                                       }
+            );
+            // Icon
+            Region toggleIcon = new Region();
+            toggleIcon.getStyleClass().add("toggle-icon");
+            toggleCardFlag.setGraphic(toggleIcon);
+
+            // Flag spacer
+            Pane spacer = new Pane();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+
+            // Number of copies flag
+            numCopiesLabel.setVisible(false);
+            numCopiesLabel.getStyleClass().add("num-copies-flag");
+            numCopiesLabel.setAlignment(Pos.CENTER);
+
+            // Flag container
+            HBox hboxFlags = new HBox(numCopiesLabel, spacer, toggleCardFlag);
+            cardTop.topProperty().set(hboxFlags);
+
+            // Invalid Highlight Border
+            invalidHighlightBorder.getStyleClass().add("image-view-wrapper");
+            invalidHighlightBorder.setFocusTraversable(false);
+            invalidHighlightBorder.setVisible(false);
         }
 
         @Override
@@ -530,17 +730,14 @@ public class SearchBarController {
             super.updateItem(newCard, empty);
             if (!empty || newCard != null) {
                 // If it is a new cell
-                if (card == null) {
-                    resetCard();
-                    path = newCard.getFront_image_path();
-                    newCard.addCardsDownloadedListener(this);
-                    // If the card is being replaced
-                } else if (!card.equals(newCard)) {
-                    card.removeCardsDownloadedLisener(this);
-                    resetCard();
+                if (card != null) card.removeCardsDownloadedListener(this);
 
-                }
                 card = newCard;
+
+                resetCard();
+                path = card.getFront_image_path();
+                num_copies = DBDriver.getCopyNumber(card.getId());
+                changeCopies();
 
                 if (card.isDouble_faced()) {
                     toggleCardFlag.setVisible(true);
@@ -564,20 +761,25 @@ public class SearchBarController {
             cardImageView.setImage(image);
             imageLoaded = true;
             loadingIndicator.setVisible(false);
-            addButton.setDisable(false);
             if (card.isDouble_faced()) {
                 file = new File(card.getBack_image_path());
                 path2 = file.toURI().toString();
             }
         }
 
+        private void changeCopies() {
+            numCopiesLabel.setText(String.valueOf(num_copies));
+            if (num_copies > 0) {
+                numCopiesLabel.setVisible(true);
+            } else {
+                numCopiesLabel.setVisible(false);
+            }
+        }
+
         private void resetCard() {
             setGraphic(root);
+            num_copies = 0;
             cardImageView.setImage(null);
-            addButton.setDisable(true);
-            addButton.setVisible(true);
-            addSpinner.setDisable(true);
-            addSpinner.setVisible(false);
             invalidHighlightBorder.setVisible(false);
             toggleCardFlag.setVisible(false);
             toggleCardFlag.setDisable(true);
@@ -665,4 +867,71 @@ public class SearchBarController {
 //            searchButton.fire();
 //        }
 //    }
+    public class NoSelectionModel<T> extends MultipleSelectionModel<T> {
+
+        @Override
+        public ObservableList<Integer> getSelectedIndices() {
+            return FXCollections.emptyObservableList();
+        }
+
+        @Override
+        public ObservableList<T> getSelectedItems() {
+            return FXCollections.emptyObservableList();
+        }
+
+        @Override
+        public void selectIndices(int index, int... indices) {
+        }
+
+        @Override
+        public void selectAll() {
+        }
+
+        @Override
+        public void selectFirst() {
+        }
+
+        @Override
+        public void selectLast() {
+        }
+
+        @Override
+        public void clearAndSelect(int index) {
+        }
+
+        @Override
+        public void select(int index) {
+        }
+
+        @Override
+        public void select(T obj) {
+        }
+
+        @Override
+        public void clearSelection(int index) {
+        }
+
+        @Override
+        public void clearSelection() {
+        }
+
+        @Override
+        public boolean isSelected(int index) {
+            return false;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return true;
+        }
+
+        @Override
+        public void selectPrevious() {
+        }
+
+        @Override
+        public void selectNext() {
+        }
+    }
 }
+

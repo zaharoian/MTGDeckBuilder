@@ -51,6 +51,7 @@ public class Card {
         public void setBool(boolean bool) {
             boolean oldValue = this.bool;
             this.bool = bool;
+            System.out.println(name + " downloaded?: " + bool);
             propertyChangeSupport.firePropertyChange("ListenableBoolean", oldValue, bool);
         }
 
@@ -100,6 +101,8 @@ public class Card {
     }
 
     public void downloadImages() {
+        System.out.println("downloading " + name + " images");
+        System.out.println("path: " + front_image_path);
         if (!checkImagePath(true)) downloadImage(front_download_link, id.toString());
         if (double_faced) if (!checkImagePath(false)) downloadImage(back_download_link, id + "_b");
         cardsDownloaded.setBool(true);
@@ -113,7 +116,7 @@ public class Card {
         cardsDownloaded.addPropertyChangeListener(listener);
     }
 
-    public void removeCardsDownloadedLisener(PropertyChangeListener listener) {
+    public void removeCardsDownloadedListener(PropertyChangeListener listener) {
         cardsDownloaded.removePropertyChangeListener(listener);
     }
 

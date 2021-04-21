@@ -9,9 +9,9 @@
 <?import javafx.scene.text.*?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" pickOnBounds="false" prefHeight="800.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MTGDeckBuilder.SearchBarController">
-   <SplitPane prefHeight="800.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="-300.0" AnchorPane.topAnchor="0.0">
-      <items>
-           <VBox alignment="CENTER" maxWidth="300.0" pickOnBounds="false" style="-fx-background-color: white;">
+   <BorderPane prefHeight="800.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <left>
+           <VBox alignment="CENTER" maxWidth="300.0" minWidth="300.0" pickOnBounds="false" prefWidth="300.0" style="-fx-background-color: white;" BorderPane.alignment="CENTER">
                <VBox pickOnBounds="false">
                    <padding>
                        <Insets left="10.0" right="10.0" top="10.0" />
@@ -555,8 +555,11 @@
                      </HBox>
                </children>
             </VBox>
-            <ListView fx:id="listView" prefHeight="997.0" prefWidth="300.0" styleClass="searchlistview" VBox.vgrow="ALWAYS" />
+                  <ListView fx:id="listView" prefHeight="997.0" prefWidth="300.0" styleClass="searchlistview" VBox.vgrow="ALWAYS" />
            </VBox>
-      </items>
-   </SplitPane>
+      </left>
+      <center>
+         <ListView fx:id="deckView" focusTraversable="false" styleClass="searchlistview" BorderPane.alignment="CENTER" />
+      </center>
+   </BorderPane>
 </AnchorPane>

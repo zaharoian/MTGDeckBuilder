@@ -26,7 +26,7 @@ public class Main extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
         Card card = DBDriver.getCard(UUID.fromString("5d131784-c1a3-463e-a37b-b720af67ab62"));
         primaryStage.setTitle("Deckbuilder");
-        Scene scene = new Scene(root, 300, 800);
+        Scene scene = new Scene(root, 600, 800);
         scene.getStylesheets().add("MTGDeckBuilder/cellStyle.css");
 
         primaryStage.setScene(scene);

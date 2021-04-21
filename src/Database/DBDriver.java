@@ -19,24 +19,17 @@ public class DBDriver {
 
             //  Open connection to the database
             conn = DriverManager.getConnection(url);
-            System.out.println("Connection to SQLite has been established.");
 
-            System.out.println("Checking for card table...");
             if (!tableExists("cards")) {
-                System.out.println("cards does not exist");
                 createCardsTable();
-                System.out.println("Created cards Table");
-            } else {
-                System.out.println("cards exists");
             }
 
-            System.out.println("Checking for faces table...");
             if(!tableExists("faces")) {
-                System.out.println("faces does not exist");
                 createFacesTable();
-                System.out.println("Created faces Table");
-            } else {
-                System.out.println("faces exists");
+            }
+
+            if(!tableExists("deck")) {
+                createDeckTable();
             }
 
             Function.create(conn, "REGEXP", new Function() {
@@ -105,6 +98,12 @@ public class DBDriver {
         }
     }
 
+    private static void createDeckTable() {
+        createTable("deck",
+                "id TEXT NOT NULL PRIMARY KEY," +
+                        "copies INTEGER not null");
+    }
+
     private static void createFacesTable() {
         createTable("faces",
                 "id TEXT not null," +
@@ -145,6 +144,85 @@ public class DBDriver {
                         "vintage INTEGER not null," +
                         "commander INTEGER not null," +
                         "rarity INTEGER not null");
+    }
+
+    public static UUID[] getDeckItems() {
+        Statement stmt = null;
+        Statement count = null;
+        UUID[] results = null;
+        try {
+            stmt = conn.createStatement();
+            count = conn.createStatement();
+            ResultSet rs_count = count.executeQuery("SELECT count(id) FROM deck");
+
+            if (!rs_count.next()) {
+                return null;
+            }
+
+            results = new UUID[rs_count.getInt(1)];
+
+            ResultSet rs = stmt.executeQuery("SELECT id FROM deck");
+
+            // Parse results
+            int i = 0;
+            while(rs.next()) {
+                results[i] = UUID.fromString(rs.getString("id"));
+                i += 1;
+            }
+
+            rs.close();
+            rs_count.close();
+            count.close();
+            stmt.close();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+
+        return results;
+    }
+
+    public static void setCopyNumber(UUID id, int copies) {
+        PreparedStatement stmt = null;
+        PreparedStatement stmt_delete = null;
+        try {
+            if (copies > 0) {
+                stmt = conn.prepareStatement("REPLACE INTO deck VALUES(?, ?)");
+
+                stmt.setString(1, id.toString());
+                stmt.setInt(2, copies);
+
+                System.out.println("Updated " + id + " to " + copies);
+                stmt.executeUpdate();
+            } else {
+                stmt_delete = conn.prepareStatement("DELETE FROM deck WHERE id = ?");
+
+                stmt_delete.setString(1, id.toString());
+
+                stmt_delete.execute();
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+    }
+
+    public static int getCopyNumber(UUID id) {
+        Statement stmt = null;
+        int result = 0;
+        try {
+            stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT copies FROM deck WHERE id = '" + id.toString() + "';");
+            if (rs.next()) {
+                result = rs.getInt(1);
+            }
+
+            rs.close();
+            stmt.close();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+
+        return result;
     }
 
     public static void insertToFacesTable(UUID id, boolean front, String image_url, String oracle_text, String power, String toughness, String mana_cost, String loyalty, String type_line, boolean w, boolean u, boolean b, boolean r, boolean g) {
@@ -576,6 +654,7 @@ public class DBDriver {
     private static String[] parseStringArgs(String args, String acceptableChars) {
         if (args == null || args.isBlank()) return null;
         args = args.replaceAll("[^" + acceptableChars + "]", "").toLowerCase().trim();
+        args = args.replaceAll("'", "''");
         if (args.isBlank()) return null;
         StringBuilder nameBuilder = new StringBuilder();
         ArrayList<String> stringArgs = new ArrayList<>();
@@ -627,6 +706,7 @@ public class DBDriver {
             // Clean up environment
             rs.close();
             stmt.close();
+            count.close();
             rs_count.close();
 
         } catch (SQLException e){

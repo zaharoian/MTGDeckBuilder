@@ -1,4 +1,3 @@
-
 .search-button {
     -fx-background-color: #c6c6c6;
 }
@@ -50,6 +49,27 @@
 .card-button:pressed {
     -fx-background-color: #369455;
 }
+
+.card-button-blue {
+    -fx-background-color: #1761e2;
+    -fx-background-radius: 0 0 10 0;
+}
+.card-button-blue:hover {
+    -fx-background-color: #337ef6;
+}
+.card-button-blue:pressed {
+    -fx-background-color: #144eb3;
+}
+
+.card-button-blue .arrow-icon {
+    -fx-background-color: white;
+    -fx-min-height: 16;
+    -fx-min-width: 12;
+    -fx-max-height: 16;
+    -fx-max-width: 12;
+    -fx-shape: "M8.122 24l-4.122-4 8-8-8-8 4.122-4 11.878 12z";
+}
+
 
 .card-button .plus-icon {
     -fx-background-color: white;
