@@ -24,7 +24,6 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
-        Card card = DBDriver.getCard(UUID.fromString("5d131784-c1a3-463e-a37b-b720af67ab62"));
         primaryStage.setTitle("Deckbuilder");
         Scene scene = new Scene(root, 600, 800);
         scene.getStylesheets().add("MTGDeckBuilder/cellStyle.css");
